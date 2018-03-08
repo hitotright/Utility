@@ -6,7 +6,7 @@
  * Date: 2018/2/26
  * Time: 10:58
  *
-class a extends Crawler {
+class a extends Process {
 public function parse($work)
 {
 echo 'parse handle '.$work.PHP_EOL;
@@ -32,6 +32,8 @@ abstract class Process
     private $QUEUE_KEY=0;
     private $TIMEOUT=5;
     private $worker;
+    private $FREE_QUEUE = false;
+
 
     /**
      * 内容处理
@@ -75,6 +77,10 @@ abstract class Process
             $pid = $ret['pid'];
             echo "Worker Exit, PID=".$pid.PHP_EOL;
         }
+
+        if($this->FREE_QUEUE){
+            $monitor->freeQueue();
+        }
     }
 
     public function consume(\swoole_process $worker)
@@ -104,6 +110,16 @@ abstract class Process
 
     public function push($work){
         $this->worker->push($work);
+    }
+
+    /**
+     * @param bool $FREE_QUEUE
+     * @return $this
+     */
+    public function setFREEQUEUE($FREE_QUEUE)
+    {
+        $this->FREE_QUEUE = $FREE_QUEUE;
+        return $this;
     }
 
     /**
