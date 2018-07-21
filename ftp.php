@@ -8,22 +8,22 @@
  */
 define('ROOT' , realpath(dirname(__FILE__)).'/');
 define('REMOTE','/web/');
+$ftp_config =[
+    [//1
+        'host'=>'127.0.01',
+        'username'=>'root',
+        'password'=>'root',
+    ],
+];
 
 function main($argc,$argv){
-    $arr_file=[];
     if($argc >= 2 ){
         unset($argv[0]);
         buildFile($argv,$arr_file);
     }else{
         die ('please enter files !'.PHP_EOL);
     }
-    $arr_config=loadConfig();
-    sendFtp($arr_file,$arr_config);
-}
-
-function loadConfig(){
-    $config= @include_once(ROOT.'application/config/ftp.php');
-    return empty($config)?die('not find config!(application/config/ftp.php)'):$config;
+    sendFtp($arr_file);
 }
 
 function buildFile($argv,&$arr_file,$root=ROOT,$remote=REMOTE){
@@ -46,8 +46,9 @@ function buildFile($argv,&$arr_file,$root=ROOT,$remote=REMOTE){
     }
 }
 
-function sendFtp($arr_file,$arr_config){
-    foreach ($arr_config as $config){
+function sendFtp($arr_file){
+    global $ftp_config;
+    foreach ($ftp_config as $config){
         $config['port']=isset($config['port'])&&$config['port']!=''?$config['port']:'21';
         $ftp_con = @ftp_connect($config['host'],$config['port']) or die("Couldn't connect to ftp!");
         @ftp_login($ftp_con, $config['username'], $config['password']) or die('login failed!');
