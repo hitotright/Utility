@@ -10,6 +10,13 @@
  */
 class Utility
 {
+    
+    public static function strToUtf8($str)
+    {
+        return iconv(mb_detect_encoding($str, array("ASCII",'UTF-8',"GB2312","GBK",'BIG5'))
+                ,'utf-8//TRANSLIT',$str)
+    }
+    
     /**
      * 给用户生成唯一CODE
      *
