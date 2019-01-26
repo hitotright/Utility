@@ -10,7 +10,21 @@
  */
 class Utility
 {
-    
+    public static function encrypt($string,$key){
+        $cipher="AES-128-CBC";
+        $iv = substr(md5($key),0,16);
+        $ciphertext_raw = openssl_encrypt($string, $cipher, $key, $options=OPENSSL_RAW_DATA, $iv);
+        return base64_encode( $ciphertext_raw );
+    }
+
+    public static function decrypt($string,$key){
+        $c = base64_decode($string);
+        $cipher="AES-128-CBC";
+        $iv = substr(md5($key),0,16);
+        $original_plaintext = openssl_decrypt($c, $cipher, $key, $options=OPENSSL_RAW_DATA, $iv);
+        return $original_plaintext;
+    }
+
     public static function strToUtf8($str)
     {
         return iconv(mb_detect_encoding($str, array("ASCII",'UTF-8',"GB2312","GBK",'BIG5'))
