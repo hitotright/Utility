@@ -10,13 +10,23 @@
  */
 class Utility
 {
+    //中文切分
+     public static function mb_str_split($str,$len){
+        $arr= preg_split('/(?<!^)(?!$)/u', $str );
+        $res = array_chunk($arr,$len);
+        foreach ($res as $k=>$v){
+            $res[$k]=implode('',$v);
+        }
+        return $res;
+    }
+    //加密
     public static function encrypt($string,$key){
         $cipher="AES-128-CBC";
         $iv = substr(md5($key),0,16);
         $ciphertext_raw = openssl_encrypt($string, $cipher, $key, $options=OPENSSL_RAW_DATA, $iv);
         return base64_encode( $ciphertext_raw );
     }
-
+    //解密
     public static function decrypt($string,$key){
         $c = base64_decode($string);
         $cipher="AES-128-CBC";
