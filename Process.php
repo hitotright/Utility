@@ -1,6 +1,6 @@
 <?php
 /**
- * 进程
+ * swool1.9 多进程实现
  * Created by PhpStorm.
  * User: hitoTright
  * Date: 2018/2/26
