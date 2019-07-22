@@ -10,6 +10,37 @@
  */
 class Utility
 {
+    //字母转中文
+    public static function numToCN($money)
+    {
+        $arr = str_split($money);
+        krsort($arr);
+        $new_arr = array_values($arr);
+        $cn = [1=>'一',2=>'二',3=>'三',4=>'四',5=>'五',6=>'六',7=>'七',8=>'八',9=>'九'];
+        $dw = ['','十','百','千'];
+        $dw2 = ['','万','亿','万','兆'];
+        $new_arr = array_chunk($new_arr,4);
+        $re=[];
+        foreach ($new_arr as $k =>$i){
+            if($k!=0){
+                $re[]= $dw2[$k];
+            }
+            $f = 0;
+            foreach ($i as $kk=>$ii){
+                if($ii == 0){
+                    if($f!=0&&isset($i[$kk-1])&&$i[$kk-1]!=0){
+                        $re[]='零';
+                    }
+                }else{
+                    $f=1;
+                    $re[]=$cn[$ii].$dw[$kk];
+                }
+            }
+        }
+        krsort($re);
+        return implode('',$re);
+    }
+    
     //中文切分
      public static function mb_str_split($str,$len){
         $arr= preg_split('/(?<!^)(?!$)/u', $str );
