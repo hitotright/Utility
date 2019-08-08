@@ -71,176 +71,7 @@ class Utility
         return iconv(mb_detect_encoding($str, array("ASCII",'UTF-8',"GB2312","GBK",'BIG5'))
                 ,'utf-8//TRANSLIT',$str)
     }
-    
-    /**
-     * 给用户生成唯一CODE
-     *
-     * @param string $data
-     * @return string
-     */
-    public static function authcode($data = null)
-    {
-        if (PHP_SAPI == 'cli') {
-            $http_host = '';
-        } else {
-            $http_scheme = (($scheme = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : null) == 'off' || empty($scheme)) ? 'http' : 'https';
-            $http_host = $http_scheme . '://' . $_SERVER['HTTP_HOST'];
-        }
-        return self::guid($http_host . $data . $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
-    }
 
-    /**
-     * 生成guid
-     *
-     * @param  $randid  字符串
-     * @return string   guid
-     */
-    public static function guid($mix = null)
-    {
-        if (is_null($mix)) {
-            $randid = uniqid(mt_rand(), true);
-        } else {
-            if (is_object($mix) && function_exists('spl_object_hash')) {
-                $randid = spl_object_hash($mix);
-            } elseif (is_resource($mix)) {
-                $randid = get_resource_type($mix) . strval($mix);
-            } else {
-                $randid = serialize($mix);
-            }
-        }
-        $randid = strtoupper(md5($randid));
-        $hyphen = chr(45);
-        $result = array();
-        $result[] = substr($randid, 0, 8);
-        $result[] = substr($randid, 8, 4);
-        $result[] = substr($randid, 12, 4);
-        $result[] = substr($randid, 16, 4);
-        $result[] = substr($randid, 20, 12);
-        return implode($hyphen, $result);
-    }
-
-    /**
-     * @param $table
-     * 表名
-     * @param $data
-     * 二维数组
-     * $arr = [
-     * 0=>['a'=>1,'b'=>1,'c'=>1,'d'=>1,'e'=>1,'f'=>'2017-06-06',],
-     * 1=>['a'=>2,'b'=>2,'c'=>2,'d'=>2,'e'=>2,'f'=>'vivo',],
-     * 2=>['a'=>3,'b'=>3,'c'=>3,'d'=>3,'e'=>3,'f'=>'oneplus',],
-     * ];
-     * @return string sql语句
-     */
-    public static function insertMany($table, $data)
-    {
-        $sql = 'insert into ' . $table . ' (';
-        $keys = array_keys($data[0]);
-        $sql .= implode(',', $keys);
-        $sql .= ') values (';
-        foreach ($data as $k => $v) {
-            foreach ($v as $key => $value) {
-                if (is_string($value))
-                    $v[$key] = "'" . $value . "'";
-            }
-            $sql .= implode(',', $v);
-            if ($k == count($data) - 1) {
-                $sql .= ');';
-            } else {
-                $sql .= '),(';
-            }
-        }
-        return $sql;
-    }
-
-    /**
-     *   生成JSON格式的正确消息
-     *
-     * @access  public
-     * @param
-     * @return  void
-     */
-    public static function jsonResult($content, $message = '', $append = array())
-    {
-        self::jsonResponse($content, 0, $message, $append);
-    }
-
-    /**
-     * 创建一个JSON格式的错误信息
-     *
-     * @access  public
-     * @param   string $msg
-     * @return  void
-     */
-    public static function jsonError($msg)
-    {
-        self::jsonResponse('', 1, $msg);
-    }
-
-    /**
-     * 创建一个JSON格式的数据
-     *
-     * @access  public
-     * @param   string $content
-     * @param   integer $error
-     * @param   string $message
-     * @param   array $append
-     * @return  void
-     */
-    private static function jsonResponse($content = '', $error = "0", $message = '', $append = array())
-    {
-
-        $res = array('error' => $error, 'message' => $message, 'content' => $content);
-        if (!empty($append)) {
-            foreach ($append AS $key => $val) {
-                $res[$key] = $val;
-            }
-        }
-        $val = json_encode($res);
-        exit($val);
-    }
-
-    /**
-     *  API接口：生成JSON格式的正确消息
-     * @param string $data 数据
-     * @param string $msg 提示消息
-     * @param array $append
-     */
-    public static function apiJsonResult($data, $msg = '', $append = array())
-    {
-        self::apiJsonResponse($data, '200', $msg, $append);
-    }
-
-    /**
-     *  API接口：创建一个JSON格式的错误信息
-     * @param string $error 错误代码
-     * @param string $msg 提示消息
-     */
-    public static function apiJsonError($error, $msg)
-    {
-        self::apiJsonResponse('', $error, $msg);
-    }
-
-    /**
-     * 创建一个JSON格式的数据
-     *
-     * @access  public
-     * @param   string $data
-     * @param   integer $error
-     * @param   string $msg
-     * @return  void
-     */
-    private static function apiJsonResponse($data = '', $error = '200', $msg = '', $append = array())
-    {
-
-        $res = array('status' => $error, 'message' => $msg, 'data' => $data);
-        if (!empty($append)) {
-            foreach ($append AS $key => $val) {
-                $res[$key] = $val;
-            }
-        }
-        $val = json_encode($res);
-        exit($val);
-    }
 
     /**
      * javascript escape php 实现
@@ -295,142 +126,6 @@ class Utility
                     $ret .= $str[$i];
         }
         return $ret;
-    }
-
-
-    /**
-     * 分页大小
-     * @return  array
-     */
-    public static function page_and_size(&$filter)
-    {
-        $filter['page_size'] = self::reqdata('pageSize') ? (int)self::reqdata('pageSize') : 30;
-        if ($filter['page_size'] == 0) $filter['page_size'] = 30;
-        $filter['page'] = self::reqdata('pageCurrent') ? (int)self::reqdata('pageCurrent') : 1;
-        if ($filter['page'] == 0) $filter['page'] = 1;
-        $filter['page_count'] = (isset($filter['record_count']) && $filter['record_count'] > 0) ?
-            ceil($filter['record_count'] / $filter['page_size']) : 1;
-
-        $filter['orderField'] = self::reqdata('orderField') && self::reqdata('orderField') !== '${param.orderField}' ? trim(self::reqdata('orderField')) : 'id';
-        $filter['orderDirection'] = self::reqdata('orderDirection') == 'asc' ? 'ASC' : 'DESC';
-        /* 边界处理 */
-        if ($filter['page'] > $filter['page_count']) {
-            $filter['page'] = $filter['page_count'];
-        }
-        $filter['start'] = ($filter['page'] - 1) * $filter['page_size'];
-        $filter['pagelink'] = self::makePageLink($filter['record_count'], $filter['page_size'],
-            $filter['page'], '', $filter['page_count']); // 显示分页
-        return $filter;
-    }
-
-    /**
-     * 首页分页
-     * @return  array
-     */
-    public static function page_and_size2(&$filter)
-    {
-        $filter['page_size'] = self::reqdata('pageSize') ? (int)self::reqdata('pageSize') : 20;
-        if ($filter['page_size'] == 0) $filter['page_size'] = 20;
-        $filter['page'] = self::reqdata('pageCurrent') ? (int)self::reqdata('pageCurrent') : 1;
-        if ($filter['page'] == 0) $filter['page'] = 1;
-        $filter['page_count'] = (isset($filter['record_count']) && $filter['record_count'] > 0) ?
-            ceil($filter['record_count'] / $filter['page_size']) : 1;
-
-        $filter['orderField'] = self::reqdata('orderField') && self::reqdata('orderField') !== '${param.orderField}' ? trim(self::reqdata('orderField')) : 'id';
-        $filter['orderDirection'] = self::reqdata('orderDirection') == 'asc' ? 'ASC' : 'DESC';
-        /* 边界处理 */
-        if ($filter['page'] > $filter['page_count']) {
-            $filter['page'] = $filter['page_count'];
-        }
-        $filter['start'] = ($filter['page'] - 1) * $filter['page_size'];
-        $filter['pagelink'] = self::makePageLink($filter['record_count'], $filter['page_size'],
-            $filter['page'], '', $filter['page_count']); // 显示分页
-        return $filter;
-    }
-
-
-    /**
-     * GET或post数据
-     * @param $key
-     */
-    public static function reqdata($key)
-    {
-        $req = Request::initial();
-        return $req->query($key) ?: $req->post($key);
-
-    }
-
-    /**
-     * 使用listtable.js翻页
-     * @param $num         总记录数
-     * @param $perpage    每页记录数
-     * @param $curpage     当前页数
-     * @param int $maxpages 最大页面值
-     * @param int $page 一次最多显示几页
-     * @return string
-     */
-    public static function makePageLink($num, $perpage, $curpage, $maxpages = 0, $page = 5)
-    {
-        $dot = '...';
-
-        $page -= strlen($curpage) - 1;
-        if ($page <= 0) {
-            $page = 1;
-        }
-        if ($perpage <= 0 || $perpage >= 1000) {
-            $perpage = 5;
-        }
-
-        $offset = floor($page * 0.5);
-
-        $realpages = @ceil($num / $perpage);
-        $curpage = $curpage > $realpages ? $realpages : $curpage;
-        $pages = $maxpages && $maxpages < $realpages ? $maxpages : $realpages;
-
-
-        if ($page > $pages) {
-            $from = 1;
-            $to = $pages;
-        } else {
-            $from = $curpage - $offset;
-            $to = $from + $page - 1;
-
-            if ($from < 1) {
-                $to = $curpage + 1 - $from;
-                $from = 1;
-                if ($to - $from < $page) {
-                    $to = $page;
-                }
-            } elseif ($to > $pages) {
-                $from = $pages - $page + 1;
-                $to = $pages;
-            }
-        }
-
-        $multipage = ($curpage > 1 ? '<a href="javascript:listTable.gotoPagePrev()" class="prev">上一页</a>' : '') .
-            ($curpage - $offset > 1 && $pages > $page ? '<a href="javascript:listTable.gotoPageFirst()" class="first">1 ' . $dot . '</a>' : '');
-        for ($i = $from; $i <= $to; $i++) {
-            $multipage .= $i == $curpage ? '<strong>' . $i . '</strong>' :
-                '<a href="javascript:listTable.gotoPage(' . $i . ')">' . $i . '</a>';
-        }
-        $multipage .= ($to < $pages ? '<a href="javascript:listTable.gotoPageLast()" class="last">' . $dot . ' ' . $realpages . '</a>' : '') .
-            ($curpage < $pages ? '<a href="javascript:listTable.gotoPageNext()" class="nxt">下一页</a>' : '');
-        return $multipage;
-    }
-
-    /**
-     * 根据过滤条件获得排序的标记
-     *
-     * @param   array $filter
-     * @return  array
-     */
-    public static function sortFlag(array $filter)
-    {
-        $flag['tag'] = 'sort_' . preg_replace('/^.*\./', '', $filter['sort_by']);
-        $flag['img'] = '<img src="/asset/images/' . ($filter['sort_order'] == "DESC" ? 'sort_desc.gif' :
-                'sort_asc.gif') . '"/>';
-
-        return $flag;
     }
 
     /**
@@ -538,24 +233,6 @@ class Utility
         return strtr($str, $arr);
     }
 
-    /**
-     * @param $multiarr 二维数组
-     * @param $index 要保留的键值
-     * @return array 一维数组
-     */
-    public static function arrayToSingleByIndex($multiarr, $index)
-    {
-        $data = array();
-        if (!empty($multiarr) && is_array($multiarr)) {
-
-            foreach ($multiarr as $k => $v) {
-
-                $data[] = $v[$index];
-
-            }
-        }
-        return array_unique($data);
-    }
 
     /**
      * 将秒转换为H:i:s
@@ -1272,32 +949,7 @@ class Utility
         return $expiration . "Z";
     }
 
-    /**
-     * 获取部门下拉菜单
-     * @param int $selectid
-     * @return string
-     */
-    public static function getDepartmentOptions($selectid = 0, $pid = 0, $deletid = 0)
-    {
-        $department_mode = new Model_System_Department();
-        $cate_tree = $department_mode->getDepartCate($pid, 1, false);
-        $options = '<option value="0">---------</option>';
-        foreach ($cate_tree as $cat) {
-            if ($deletid > 0 && $deletid == $cat['id']) continue;
-            if ($selectid > 0 && $selectid == $cat['id']) {
-                $selected = 'selected="true"';
-            } else {
-                $selected = '';
-            }
-            if ($cat['depath'] == 1) {
-                $options .= sprintf('<option value="%d" %s>├ %s</option>', $cat['id'], $selected, $cat['name']);
-            } else {
-                $options .= sprintf('<option value="%d" %s>%s├ %s</option>', $cat['id'], $selected,
-                    str_repeat('&nbsp;', $cat['depath'] * 2), $cat['name']);
-            }
-        }
-        return $options;
-    }
+   
 
     /**
      * 生成全球唯一标识(32位)
@@ -1325,12 +977,6 @@ class Utility
     {
         $second1 = strtotime($day1);
         $second2 = strtotime($day2);
-
-//        if ($second1 < $second2) {
-//            $tmp = $second2;
-//            $second2 = $second1;
-//            $second1 = $tmp;
-//        }
         return ceil(($second1 - $second2) / 86400);
     }
 
@@ -1460,42 +1106,6 @@ class Utility
             return $newarrids;
         } else {
             return '';
-        }
-    }
-
-    /**
-     * array_column 用于获取二维数组中的元素(PHP 5.5新增函数)
-     * 自定义用于兼容5.5以下的版本
-     *
-     **/
-    public static function i_array_column($input, $columnKey, $indexKey = null)
-    {
-        if (!function_exists('array_column')) {
-            $columnKeyIsNumber = (is_numeric($columnKey)) ? true : false;
-            $indexKeyIsNull = (is_null($indexKey)) ? true : false;
-            $indexKeyIsNumber = (is_numeric($indexKey)) ? true : false;
-            $result = array();
-            foreach ((array)$input as $key => $row) {
-                if ($columnKeyIsNumber) {
-                    $tmp = array_slice($row, $columnKey, 1);
-                    $tmp = (is_array($tmp) && !empty($tmp)) ? current($tmp) : null;
-                } else {
-                    $tmp = isset($row[$columnKey]) ? $row[$columnKey] : null;
-                }
-                if (!$indexKeyIsNull) {
-                    if ($indexKeyIsNumber) {
-                        $key = array_slice($row, $indexKey, 1);
-                        $key = (is_array($key) && !empty($key)) ? current($key) : null;
-                        $key = is_null($key) ? 0 : $key;
-                    } else {
-                        $key = isset($row[$indexKey]) ? $row[$indexKey] : 0;
-                    }
-                }
-                $result[$key] = $tmp;
-            }
-            return $result;
-        } else {
-            return array_column($input, $columnKey, $indexKey);
         }
     }
 
