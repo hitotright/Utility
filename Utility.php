@@ -10,6 +10,37 @@
  */
 class Utility
 {
+    public function sendImage($url,$name,$file,$headers=false){
+        $post = [];
+        $info = pathinfo($file);
+        if(version_compare(PHP_VERSION, '5.5.0', '<')){
+            $post[$name]=curl_file_create($file,mime_content_type($file),$info['basename']);
+        }else{
+            $name = $info['basename'];
+            $post[$name] = new \CURLFile($file, mime_content_type($file), $name);
+        }
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+        if($headers){
+            if(is_array($headers)){
+                curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
+            }else{
+                curl_setopt($ch,CURLOPT_HTTPHEADER,explode('; ',$headers));
+            }
+        }
+        $result = curl_exec($ch);
+        curl_close($ch);
+        return $result;
+    }
+    
     //字母转中文
     public static function numToCN($money)
     {
