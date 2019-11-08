@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="tncode.css">
+</head>
+<body>
+<!--图片验证码注释部分 开始-->
+<div class="form_yzm">
+    <a ><img src="./img/login_yzm.png" alt="" class="img_icon_form_yzm"></a>
+    <div class="tncode yzm_hd" style="text-align: left;margin: 20px auto;height: 40px;width: 100%;line-height: 40px;"></div>
+</div>
+<!--图片验证码注释部分 end-->
+</body>
+<script type="module">
+    import tncode from './tn_code.js';
+    tncode.init()
+</script>
+</html>
