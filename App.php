@@ -16,7 +16,7 @@ class App
     public static function getInstance()
     {
         if (is_null(self::$instance)) {
-            static::$instance = ['App'=>new App()];
+            static::$instance = ['App'=>new static];
         }
         return self::$instance['App'];
     }
